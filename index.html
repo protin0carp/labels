@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Protein & Carb Labels</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo-dot"></div>
+      <div>
+        <strong>Protein & Carb</strong>
+        <small>Labels System</small>
+      </div>
+    </div>
+    <button class="nav active" data-view="print">🖨️ الطباعة</button>
+    <button class="nav" data-view="products">📦 الأصناف</button>
+    <button class="nav" data-view="settings">⚙️ ضبط الملصق</button>
+    <button class="nav" data-view="printer">🛠️ الطابعة</button>
+    <footer>فكرة وتطوير<br><b>Mimoon Mohammed</b></footer>
+  </aside>
+
+  <main class="app">
+    <header class="topbar">
+      <div class="status">متصل <span></span></div>
+      <div>
+        <h1>طباعة الملصقات</h1>
+        <p>اختر الصنف، اكتب عدد النسخ، ثم اطبع المتغيرات فقط</p>
+      </div>
+    </header>
+
+    <section id="view-print" class="view active grid-two">
+      <div class="panel">
+        <div class="panel-head"><h2>اختيار الصنف</h2><span>تشغيل سريع</span></div>
+        <input id="searchInput" class="field" placeholder="ابحث باسم الحلى أو المحتويات..." />
+        <div id="productList" class="product-list"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h2>تفاصيل الطباعة</h2><span>جاهز للطباعة</span></div>
+        <div class="selected-card">
+          <h3 id="selectedName">—</h3>
+          <p id="selectedDesc">—</p>
+          <div class="nutrition-row">
+            <div><b id="selectedFat">—</b><small>Fat</small></div>
+            <div><b id="selectedProtein">—</b><small>Protein</small></div>
+            <div><b id="selectedCarbs">—</b><small>Carbs</small></div>
+            <div><b id="selectedCalories">—</b><small>Calories</small></div>
+          </div>
+          <p class="exp" id="selectedExp">Exp:- —</p>
+          <label>عدد النسخ</label>
+          <input id="copiesInput" class="field" type="number" min="1" value="1" />
+          <button id="printBtn" class="primary">🖨️ طباعة</button>
+          <button id="testPrintBtn" class="ghost">اختبار طباعة كلمة واضحة</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-products" class="view">
+      <div class="panel wide">
+        <div class="panel-head"><h2>إدارة الأصناف</h2><span>حفظ محلي حالياً / جاهز Firestore</span></div>
+        <div class="form-grid">
+          <input id="pName" class="field" placeholder="اسم الحلى" />
+          <input id="pDesc" class="field" placeholder="المحتويات" />
+          <input id="pCalories" class="field" placeholder="Calories" type="number" step="0.1" />
+          <input id="pCarbs" class="field" placeholder="Carbs" type="number" step="0.1" />
+          <input id="pProtein" class="field" placeholder="Protein" type="number" step="0.1" />
+          <input id="pFat" class="field" placeholder="Fat" type="number" step="0.1" />
+          <input id="pShelf" class="field" placeholder="الصلاحية بالأيام" type="number" value="1" />
+          <button id="saveProductBtn" class="primary">حفظ الصنف</button>
+        </div>
+        <div id="manageList" class="manage-list"></div>
+      </div>
+    </section>
+
+    <section id="view-settings" class="view grid-two">
+      <div class="panel">
+        <div class="panel-head"><h2>ضبط الملصق</h2><span>للطوارئ فقط</span></div>
+        <p class="hint">اضغط على النص الأسود داخل الملصق ثم اسحبه. استخدم الأسهم للتعديل الدقيق.</p>
+        <div class="control-row">
+          <button id="moveUp" class="ghost">↑ أعلى</button>
+          <button id="moveDown" class="ghost">↓ أسفل</button>
+          <button id="moveLeft" class="ghost">← يسار</button>
+          <button id="moveRight" class="ghost">يمين →</button>
+        </div>
+        <label>حجم الخط للعنصر المحدد</label>
+        <input id="fontSizeRange" type="range" min="6" max="18" step="0.5" value="9" />
+        <button id="saveSettingsBtn" class="primary">💾 حفظ الإعدادات</button>
+        <button id="resetSettingsBtn" class="ghost">إعادة الضبط الافتراضي</button>
+      </div>
+      <div class="panel label-panel">
+        <div class="panel-head"><h2>معاينة الملصق الحقيقي</h2><span>33.6 × 55 mm</span></div>
+        <div id="labelEditor" class="label-preview editor-mode"></div>
+      </div>
+    </section>
+
+    <section id="view-printer" class="view">
+      <div class="panel wide">
+        <div class="panel-head"><h2>إعدادات الطابعة</h2><span>Zebra ZD220</span></div>
+        <p class="hint">زر الطباعة يفتح نافذة طباعة المتصفح. اختر Zebra ZD220 واضبط Scale = 100% وMargins = None إن ظهرت.</p>
+        <div class="printer-card">
+          <b>مقاس الطباعة المعتمد:</b>
+          <span>33.6mm × 55mm</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <template id="printTemplate">
+    <html dir="rtl" lang="ar">
+      <head>
+        <meta charset="utf-8" />
+        <title>Print Label</title>
+        <link rel="stylesheet" href="style.css" />
+      </head>
+      <body class="print-body">
+        <div id="printArea"></div>
+      </body>
+    </html>
+  </template>
+
+  <script src="app.js"></script>
+  <script src="printer.js"></script>
+</body>
+</html>
