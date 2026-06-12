@@ -18,6 +18,7 @@ let products = JSON.parse(localStorage.getItem(PRODUCTS_KEY) || 'null') || [
 let settings = JSON.parse(localStorage.getItem(LABEL_KEY) || 'null') || cloneDefaultSettings();
 function cloneDefaultSettings(){return JSON.parse(JSON.stringify(defaultSettings));}
 let selected = products[0];
+let editingProductId = null;
 window.getSelectedProduct = () => selected;
 let selectedField = null;
 function saveProducts(){localStorage.setItem(PRODUCTS_KEY, JSON.stringify(products));}
@@ -38,5 +39,95 @@ let drag={active:false,key:null,rect:null};function startDrag(e){e.preventDefaul
 function onDrag(e){if(!drag.active)return;const x=((e.clientX-drag.rect.left)/drag.rect.width)*100;const y=((e.clientY-drag.rect.top)/drag.rect.height)*100;settings[drag.key].x=Math.max(0,Math.min(100,x));settings[drag.key].y=Math.max(0,Math.min(100,y));renderEditor();}
 function endDrag(){drag.active=false;document.body.style.touchAction='';window.removeEventListener('pointermove',onDrag);}
 function moveSelected(dx,dy){if(!selectedField)return;settings[selectedField].x=Math.max(0,Math.min(100,settings[selectedField].x+dx));settings[selectedField].y=Math.max(0,Math.min(100,settings[selectedField].y+dy));renderEditor();}
-function renderManage(){const host=document.getElementById('manageList');if(!host)return;host.innerHTML='';products.forEach(p=>{const el=document.createElement('div');el.className='product-item';el.innerHTML=`<h3>${p.name}</h3><p>${p.description}</p><div class="chips"><span>${p.calories} Cal</span><span>${p.carbs} C</span><span>${p.protein} P</span><span>${p.fat} F</span></div>`;host.appendChild(el);});}
-document.addEventListener('DOMContentLoaded',()=>{document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>nav(b.dataset.view));document.getElementById('searchInput')?.addEventListener('input',renderProducts);document.getElementById('saveProductBtn')?.addEventListener('click',()=>{const p={id:'p'+Date.now(),name:document.getElementById('pName').value.trim(),description:document.getElementById('pDesc').value.trim(),calories:Number(document.getElementById('pCalories').value),carbs:Number(document.getElementById('pCarbs').value),protein:Number(document.getElementById('pProtein').value),fat:Number(document.getElementById('pFat').value),shelfLifeDays:Number(document.getElementById('pShelf').value||1)};if(!p.name||!p.description)return alert('اكتب اسم الحلى والمحتويات');products.unshift(p);selected=p;window.selected=p;saveProducts();renderProducts();renderSelected();renderManage();});document.getElementById('saveSettingsBtn')?.addEventListener('click',()=>{saveSettings();alert('تم حفظ إعدادات الملصق');});document.getElementById('resetSettingsBtn')?.addEventListener('click',()=>{settings=cloneDefaultSettings();saveSettings();renderEditor();});document.getElementById('moveUp')?.addEventListener('click',()=>moveSelected(0,-.5));document.getElementById('moveDown')?.addEventListener('click',()=>moveSelected(0,.5));document.getElementById('moveLeft')?.addEventListener('click',()=>moveSelected(-.5,0));document.getElementById('moveRight')?.addEventListener('click',()=>moveSelected(.5,0));document.getElementById('fontSizeRange')?.addEventListener('input',e=>{if(!selectedField)return;settings[selectedField].size=Number(e.target.value);renderEditor();});window.selected=selected;renderProducts();renderSelected();renderManage();renderEditor();});
+function setFieldValue(id, value){const el=document.getElementById(id); if(el) el.value=value ?? '';}
+function getFieldValue(id){return (document.getElementById(id)?.value || '').trim();}
+function clearProductForm(){
+  editingProductId=null;
+  ['pName','pDesc','pCalories','pCarbs','pProtein','pFat'].forEach(id=>setFieldValue(id,''));
+  setFieldValue('pShelf',1);
+  const btn=document.getElementById('saveProductBtn'); if(btn) btn.textContent='➕ حفظ الصنف';
+  const cancel=document.getElementById('cancelEditBtn'); if(cancel) cancel.style.display='none';
+}
+function fillProductForm(p){
+  editingProductId=p.id;
+  setFieldValue('pName',p.name);
+  setFieldValue('pDesc',p.description);
+  setFieldValue('pCalories',p.calories);
+  setFieldValue('pCarbs',p.carbs);
+  setFieldValue('pProtein',p.protein);
+  setFieldValue('pFat',p.fat);
+  setFieldValue('pShelf',p.shelfLifeDays || 1);
+  const btn=document.getElementById('saveProductBtn'); if(btn) btn.textContent='💾 حفظ التعديل';
+  const cancel=document.getElementById('cancelEditBtn'); if(cancel) cancel.style.display='block';
+  nav('products');
+}
+function readProductForm(){
+  return {
+    id: editingProductId || 'p'+Date.now(),
+    name: getFieldValue('pName'),
+    description: getFieldValue('pDesc'),
+    calories: Number(getFieldValue('pCalories')),
+    carbs: Number(getFieldValue('pCarbs')),
+    protein: Number(getFieldValue('pProtein')),
+    fat: Number(getFieldValue('pFat')),
+    shelfLifeDays: Number(getFieldValue('pShelf') || 1)
+  };
+}
+function renderManage(){
+  const host=document.getElementById('manageList');
+  if(!host)return;
+  host.innerHTML='';
+  products.forEach(p=>{
+    const el=document.createElement('div');
+    el.className='product-item manage-item';
+    el.innerHTML=`
+      <div class="manage-info">
+        <h3>${p.name}</h3>
+        <p>${p.description}</p>
+        <div class="chips"><span>${p.calories} Cal</span><span>${p.carbs} C</span><span>${p.protein} P</span><span>${p.fat} F</span></div>
+      </div>
+      <div class="manage-actions">
+        <button type="button" class="mini edit-product">تعديل</button>
+        <button type="button" class="mini danger delete-product">حذف</button>
+      </div>`;
+    el.querySelector('.edit-product').onclick=(e)=>{e.stopPropagation();fillProductForm(p);};
+    el.querySelector('.delete-product').onclick=(e)=>{
+      e.stopPropagation();
+      if(!confirm(`هل تريد حذف الصنف: ${p.name}؟`)) return;
+      products=products.filter(x=>x.id!==p.id);
+      if(selected?.id===p.id){selected=products[0]||null;window.selected=selected;}
+      saveProducts();renderProducts();renderSelected();renderManage();renderEditor();
+    };
+    el.onclick=()=>{selected=p;window.selected=p;renderProducts();renderSelected();renderEditor();nav('print');};
+    host.appendChild(el);
+  });
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>nav(b.dataset.view));
+  document.getElementById('searchInput')?.addEventListener('input',renderProducts);
+  document.getElementById('saveProductBtn')?.addEventListener('click',()=>{
+    const p=readProductForm();
+    if(!p.name||!p.description)return alert('اكتب اسم الحلى والمحتويات');
+    if([p.calories,p.carbs,p.protein,p.fat].some(v=>Number.isNaN(v))) return alert('تأكد من إدخال القيم الغذائية بالأرقام');
+    if(editingProductId){
+      products=products.map(x=>x.id===editingProductId?p:x);
+    }else{
+      products.unshift(p);
+    }
+    selected=p;window.selected=p;
+    saveProducts();clearProductForm();renderProducts();renderSelected();renderManage();renderEditor();
+    alert(editingProductId?'تم تعديل الصنف':'تم حفظ الصنف');
+  });
+  document.getElementById('cancelEditBtn')?.addEventListener('click',clearProductForm);
+  document.getElementById('saveSettingsBtn')?.addEventListener('click',()=>{saveSettings();alert('تم حفظ إعدادات الملصق');});
+  document.getElementById('resetSettingsBtn')?.addEventListener('click',()=>{
+    if(!confirm('هل تريد إعادة ضبط إعدادات الملصق الافتراضية؟ سيتم تطبيقها على كل الأصناف.')) return;
+    settings=cloneDefaultSettings();saveSettings();renderEditor();
+  });
+  document.getElementById('moveUp')?.addEventListener('click',()=>moveSelected(0,-.5));
+  document.getElementById('moveDown')?.addEventListener('click',()=>moveSelected(0,.5));
+  document.getElementById('moveLeft')?.addEventListener('click',()=>moveSelected(-.5,0));
+  document.getElementById('moveRight')?.addEventListener('click',()=>moveSelected(.5,0));
+  document.getElementById('fontSizeRange')?.addEventListener('input',e=>{if(!selectedField)return;settings[selectedField].size=Number(e.target.value);renderEditor();});
+  window.selected=selected;renderProducts();renderSelected();renderManage();renderEditor();
+});
