@@ -72,9 +72,23 @@ function pcSplitArabicLines(text) {
 }
 
 function pcAutoArabicSize(key, text, base) {
-  // إلغاء التصغير التلقائي نهائياً.
-  // حجم الخط الآن يأخذ الرقم من ضبط الملصق كما هو.
-  return Number(base || 12);
+  const len = String(text || '').trim().length;
+  let size = Number(base || 9);
+
+  if (key === 'desc') {
+    if (len <= 18) size = Math.max(size, 12);
+    else if (len <= 32) size = Math.max(size, 10.8);
+    else if (len <= 48) size = Math.min(size, 9.6);
+    else size = Math.min(size, 8.8);
+  }
+
+  if (key === 'name') {
+    if (len <= 12) size = Math.max(size, 11);
+    else if (len <= 24) size = Math.max(size, 10);
+    else size = Math.min(size, 9);
+  }
+
+  return size;
 }
 
 function pcArabicImage(text, key, baseSize, widthPercent) {
@@ -154,10 +168,7 @@ async function buildPrintDocument(product, copies = 1, test = false) {
   const count = Math.max(1, Number(copies || 1));
   const settings = pcGetSettings();
 
-  const imageCache = {
-    desc: pcArabicImage(data.description || '', 'desc', settings.desc?.size || 10, settings.desc?.width || 78),
-    name: pcArabicImage(data.name || '', 'name', settings.name?.size || 9.5, settings.name?.width || 28)
-  };
+  const imageCache = {};
 
   let labels = '';
   for (let i = 0; i < count; i++) labels += pcBuildSingleLabel(data, settings, imageCache);
@@ -213,6 +224,13 @@ async function buildPrintDocument(product, copies = 1, test = false) {
     display: block;
     height: auto;
     image-rendering: auto;
+  }
+  .desc, .name {
+    font-family: Cairo, Tahoma, Arial, sans-serif;
+    font-weight: 900;
+    direction: rtl;
+    line-height: 1.2;
+    white-space: normal;
   }
   .num {
     font-size: 11px;
