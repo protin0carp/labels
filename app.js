@@ -1,14 +1,14 @@
-const LABEL_KEY = 'pc_label_settings_v4';
+const LABEL_KEY = 'pc_label_settings_landscape_v1';
 const PRODUCTS_KEY = 'pc_products_v4';
-const LABEL_MM = { width: 33.6, height: 55 };
+const LABEL_MM = { width: 55, height: 33.6 };
 const defaultSettings = {
-  desc: { x: 50, y: 28, size: 8.2, width: 76 },
-  calories: { x: 18, y: 44, size: 10 },
-  carbs: { x: 43, y: 44, size: 10 },
-  protein: { x: 66, y: 44, size: 10 },
-  fat: { x: 88, y: 44, size: 10 },
-  expiry: { x: 35, y: 83, size: 7.8 },
-  name: { x: 20, y: 92, size: 8.5 }
+  desc: { x: 50, y: 31, size: 7.6, width: 78 },
+  calories: { x: 20, y: 50, size: 10 },
+  carbs: { x: 45, y: 50, size: 10 },
+  protein: { x: 67, y: 50, size: 10 },
+  fat: { x: 87, y: 50, size: 10 },
+  expiry: { x: 22, y: 82, size: 7.8 },
+  name: { x: 14, y: 92, size: 8.2, width: 28 }
 };
 let products = JSON.parse(localStorage.getItem(PRODUCTS_KEY) || 'null') || [
   {id:'p1',name:'شوكر كرانشو',description:'دجاج باربكيو 200G',calories:532,carbs:38,protein:68,fat:12,shelfLifeDays:1},
@@ -18,15 +18,17 @@ let products = JSON.parse(localStorage.getItem(PRODUCTS_KEY) || 'null') || [
 let settings = JSON.parse(localStorage.getItem(LABEL_KEY) || 'null') || cloneDefaultSettings();
 function cloneDefaultSettings(){return JSON.parse(JSON.stringify(defaultSettings));}
 let selected = products[0];
+window.getSelectedProduct = () => selected;
 let selectedField = null;
 function saveProducts(){localStorage.setItem(PRODUCTS_KEY, JSON.stringify(products));}
 function saveSettings(){localStorage.setItem(LABEL_KEY, JSON.stringify(settings));}
 function expiryDate(days){const d=new Date();d.setDate(d.getDate()+Number(days||1));return `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;}
 function fitText(text,max=42){text=String(text||'');if(text.length<=max)return text;const mid=Math.ceil(text.length/2);let cut=text.lastIndexOf(' ',mid);if(cut<10)cut=mid;return text.slice(0,cut).trim()+"\n"+text.slice(cut).trim();}
 function nav(view){document.querySelectorAll('.nav').forEach(b=>b.classList.toggle('active',b.dataset.view===view));document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById('view-'+view).classList.add('active'); if(view==='settings') renderEditor();}
-function renderProducts(){const q=(document.getElementById('searchInput')?.value||'').trim();const list=document.getElementById('productList');if(!list)return;list.innerHTML='';products.filter(p=>!q||p.name.includes(q)||p.description.includes(q)).forEach(p=>{const el=document.createElement('div');el.className='product-item '+(selected?.id===p.id?'active':'');el.innerHTML=`<h3>${p.name}</h3><p>${p.description}</p><div class="chips"><span>F ${p.fat}</span><span>P ${p.protein}</span><span>C ${p.carbs}</span><span>Cal ${p.calories}</span></div>`;el.onclick=()=>{selected=p;renderProducts();renderSelected();renderEditor();};list.appendChild(el);});}
+function renderProducts(){const q=(document.getElementById('searchInput')?.value||'').trim();const list=document.getElementById('productList');if(!list)return;list.innerHTML='';products.filter(p=>!q||p.name.includes(q)||p.description.includes(q)).forEach(p=>{const el=document.createElement('div');el.className='product-item '+(selected?.id===p.id?'active':'');el.innerHTML=`<h3>${p.name}</h3><p>${p.description}</p><div class="chips"><span>F ${p.fat}</span><span>P ${p.protein}</span><span>C ${p.carbs}</span><span>Cal ${p.calories}</span></div>`;el.onclick=()=>{selected=p;window.selected=p;renderProducts();renderSelected();renderEditor();};list.appendChild(el);});}
 function renderSelected(){
   if(!selected)return;
+  window.selected=selected;
   const ids={selectedName:selected.name,selectedDesc:selected.description,selectedCalories:selected.calories,selectedCarbs:selected.carbs,selectedProtein:selected.protein,selectedFat:selected.fat,selectedExp:'Exp:- '+expiryDate(selected.shelfLifeDays)};
   Object.entries(ids).forEach(([id,val])=>{const el=document.getElementById(id); if(el) el.textContent=val;});
 }
@@ -37,4 +39,4 @@ function onDrag(e){if(!drag.active)return;const x=((e.clientX-drag.rect.left)/dr
 function endDrag(){drag.active=false;document.body.style.touchAction='';window.removeEventListener('pointermove',onDrag);}
 function moveSelected(dx,dy){if(!selectedField)return;settings[selectedField].x=Math.max(0,Math.min(100,settings[selectedField].x+dx));settings[selectedField].y=Math.max(0,Math.min(100,settings[selectedField].y+dy));renderEditor();}
 function renderManage(){const host=document.getElementById('manageList');if(!host)return;host.innerHTML='';products.forEach(p=>{const el=document.createElement('div');el.className='product-item';el.innerHTML=`<h3>${p.name}</h3><p>${p.description}</p><div class="chips"><span>${p.calories} Cal</span><span>${p.carbs} C</span><span>${p.protein} P</span><span>${p.fat} F</span></div>`;host.appendChild(el);});}
-document.addEventListener('DOMContentLoaded',()=>{document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>nav(b.dataset.view));document.getElementById('searchInput')?.addEventListener('input',renderProducts);document.getElementById('saveProductBtn')?.addEventListener('click',()=>{const p={id:'p'+Date.now(),name:document.getElementById('pName').value.trim(),description:document.getElementById('pDesc').value.trim(),calories:Number(document.getElementById('pCalories').value),carbs:Number(document.getElementById('pCarbs').value),protein:Number(document.getElementById('pProtein').value),fat:Number(document.getElementById('pFat').value),shelfLifeDays:Number(document.getElementById('pShelf').value||1)};if(!p.name||!p.description)return alert('اكتب اسم الحلى والمحتويات');products.unshift(p);selected=p;saveProducts();renderProducts();renderSelected();renderManage();});document.getElementById('saveSettingsBtn')?.addEventListener('click',()=>{saveSettings();alert('تم حفظ إعدادات الملصق');});document.getElementById('resetSettingsBtn')?.addEventListener('click',()=>{settings=cloneDefaultSettings();saveSettings();renderEditor();});document.getElementById('moveUp')?.addEventListener('click',()=>moveSelected(0,-.5));document.getElementById('moveDown')?.addEventListener('click',()=>moveSelected(0,.5));document.getElementById('moveLeft')?.addEventListener('click',()=>moveSelected(-.5,0));document.getElementById('moveRight')?.addEventListener('click',()=>moveSelected(.5,0));document.getElementById('fontSizeRange')?.addEventListener('input',e=>{if(!selectedField)return;settings[selectedField].size=Number(e.target.value);renderEditor();});renderProducts();renderSelected();renderManage();renderEditor();});
+document.addEventListener('DOMContentLoaded',()=>{document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>nav(b.dataset.view));document.getElementById('searchInput')?.addEventListener('input',renderProducts);document.getElementById('saveProductBtn')?.addEventListener('click',()=>{const p={id:'p'+Date.now(),name:document.getElementById('pName').value.trim(),description:document.getElementById('pDesc').value.trim(),calories:Number(document.getElementById('pCalories').value),carbs:Number(document.getElementById('pCarbs').value),protein:Number(document.getElementById('pProtein').value),fat:Number(document.getElementById('pFat').value),shelfLifeDays:Number(document.getElementById('pShelf').value||1)};if(!p.name||!p.description)return alert('اكتب اسم الحلى والمحتويات');products.unshift(p);selected=p;window.selected=p;saveProducts();renderProducts();renderSelected();renderManage();});document.getElementById('saveSettingsBtn')?.addEventListener('click',()=>{saveSettings();alert('تم حفظ إعدادات الملصق');});document.getElementById('resetSettingsBtn')?.addEventListener('click',()=>{settings=cloneDefaultSettings();saveSettings();renderEditor();});document.getElementById('moveUp')?.addEventListener('click',()=>moveSelected(0,-.5));document.getElementById('moveDown')?.addEventListener('click',()=>moveSelected(0,.5));document.getElementById('moveLeft')?.addEventListener('click',()=>moveSelected(-.5,0));document.getElementById('moveRight')?.addEventListener('click',()=>moveSelected(.5,0));document.getElementById('fontSizeRange')?.addEventListener('input',e=>{if(!selectedField)return;settings[selectedField].size=Number(e.target.value);renderEditor();});window.selected=selected;renderProducts();renderSelected();renderManage();renderEditor();});
