@@ -97,7 +97,7 @@ function buildPrintDocument(product, copies = 1, test = false) {
     padding: 0;
     background: #fff;
     overflow: hidden;
-    font-family: Arial, Tahoma, sans-serif;
+    font-family: Tahoma, 'Arial Unicode MS', Arial, sans-serif;
   }
   * { box-sizing: border-box; }
   .label {
@@ -115,18 +115,18 @@ function buildPrintDocument(product, copies = 1, test = false) {
     position: absolute;
     transform: translate(-50%, -50%);
     color: #000;
-    font-family: Arial, Tahoma, sans-serif;
+    font-family: Tahoma, 'Arial Unicode MS', Arial, sans-serif;
     font-weight: 900;
     text-align: center;
     line-height: 1.05;
     white-space: normal;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
-    text-rendering: geometricPrecision;
+    text-rendering: optimizeLegibility;
   }
-  .desc, .name { font-family: Tahoma, Arial, sans-serif; }
-  .num { font-size: 10px; }
-  .expiry { font-family: Arial, Tahoma, sans-serif; }
+  .desc, .name { font-family: Tahoma, 'Arial Unicode MS', Arial, sans-serif; font-size: 8.6px !important; font-weight: 700; }
+  .num { font-size: 11px; font-family: Tahoma, Arial, sans-serif; font-weight: 700; }
+  .expiry { font-family: Tahoma, 'Arial Unicode MS', Arial, sans-serif; }
   @media print {
     html, body { width: 55mm; height: 33.6mm; margin:0; padding:0; overflow:hidden; }
     .label { width:55mm; height:33.6mm; }
