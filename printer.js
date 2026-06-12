@@ -12,13 +12,13 @@ const PC_RIYAL_MARK_SRC = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHIAAAC
 
 function pcGetSettings() {
   const defaults = {
-    desc: { x: 50, y: 31, size: 13, width: 78 },
+    desc: { x: 50, y: 31, size: 10, width: 78 },
     calories: { x: 20, y: 50, size: 10 },
     carbs: { x: 45, y: 50, size: 10 },
     protein: { x: 67, y: 50, size: 10 },
     fat: { x: 87, y: 50, size: 10 },
     expiry: { x: 22, y: 82, size: 9 },
-    name: { x: 14, y: 92, size: 11.5, width: 28 }
+    name: { x: 14, y: 92, size: 9.5, width: 28 }
   };
 
   try {
@@ -59,21 +59,32 @@ function pcSplitArabicLines(text) {
 }
 
 function pcAutoArabicSize(key, text, base) {
-  // نترك حجم الخط تحت تحكم "ضبط الملصق" مباشرة.
-  // هذا يحافظ على ميزة تحويل العربي إلى صورة، لكن بدون تصغير تلقائي مزعج.
-  const size = Number(base || (key === 'desc' ? 13 : 11.5));
-  return Math.max(6, Math.min(22, size));
+  const len = String(text || '').trim().length;
+  let size = Number(base || 9);
+
+  if (key === 'desc') {
+    if (len <= 18) size = Math.max(size, 12);
+    else if (len <= 32) size = Math.max(size, 10.8);
+    else if (len <= 48) size = Math.min(size, 9.6);
+    else size = Math.min(size, 8.8);
+  }
+
+  if (key === 'name') {
+    if (len <= 12) size = Math.max(size, 11);
+    else if (len <= 24) size = Math.max(size, 10);
+    else size = Math.min(size, 9);
+  }
+
+  return size;
 }
 
 function pcArabicImage(text, key, baseSize, widthPercent) {
   const lines = pcSplitArabicLines(text);
   const size = pcAutoArabicSize(key, text, baseSize);
 
-  // جودة أعلى للصورة حتى لا تتقطع الحروف العربية.
-  const scale = 7;
-  const w = Math.max(160, Math.round((widthPercent || 40) * 6.2));
-  const lineHeight = size * 1.35;
-  const h = Math.max(48, Math.ceil((lineHeight * lines.length) + 18));
+  const scale = 5;
+  const w = Math.max(130, Math.round((widthPercent || 40) * 5.4));
+  const h = Math.max(38, Math.ceil((size * 1.42 * lines.length) + 12));
 
   const canvas = document.createElement('canvas');
   canvas.width = w * scale;
@@ -86,12 +97,13 @@ function pcArabicImage(text, key, baseSize, widthPercent) {
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.direction = 'rtl';
-  ctx.font = `900 ${size}px Cairo, Tahoma, Arial, sans-serif`;
+  ctx.font = `900 ${size}px \"Cairo\"`;
 
+  const lineHeight = size * 1.25;
   const startY = h / 2 - ((lines.length - 1) * lineHeight) / 2;
 
   lines.forEach((line, i) => {
-    ctx.fillText(line, w / 2, startY + i * lineHeight, w - 10);
+    ctx.fillText(line, w / 2, startY + i * lineHeight, w - 8);
   });
 
   return {
@@ -100,6 +112,7 @@ function pcArabicImage(text, key, baseSize, widthPercent) {
     size
   };
 }
+
 function pcPriceHtml(product) {
   const raw = product?.price;
   if (raw === undefined || raw === null || raw === '') return '';
