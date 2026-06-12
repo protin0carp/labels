@@ -7,24 +7,18 @@ function pcEscapeHtml(value) {
     .replaceAll("'", '&#039;');
 }
 
-function pcExpiryDate(product) {
-  const days = Number(product?.shelfLifeDays || 1);
-  const d = new Date();
-  d.setDate(d.getDate() + days);
-  return `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`;
+function pcPriceText(product) {
+  const v = product?.price ?? '';
+  if (v === '') return '';
+  return `${v} SR`;
 }
 
 function pcFitText(text, max = 44) {
   text = String(text || '').trim();
   const safe = pcEscapeHtml(text);
 
-  if (text.length <= 25) {
-    return { html: safe, size: 10 };
-  }
-
-  if (text.length <= 40) {
-    return { html: safe, size: 9 };
-  }
+  if (text.length <= 22) return { html: safe, size: 10.5 };
+  if (text.length <= 36) return { html: safe, size: 9.5 };
 
   const mid = Math.ceil(text.length / 2);
   let cut = text.lastIndexOf(' ', mid);
@@ -32,23 +26,23 @@ function pcFitText(text, max = 44) {
 
   const first = pcEscapeHtml(text.slice(0, cut).trim());
   const second = pcEscapeHtml(text.slice(cut).trim());
-  return { html: first + '<br>' + second, size: 8 };
+  return { html: first + '<br>' + second, size: 8.4 };
 }
 
 function pcGetSettings() {
   const defaults = {
-    desc: { x: 50, y: 31, size: 7.6, width: 78 },
+    desc: { x: 50, y: 31, size: 10, width: 78 },
     calories: { x: 20, y: 50, size: 10 },
     carbs: { x: 45, y: 50, size: 10 },
     protein: { x: 67, y: 50, size: 10 },
     fat: { x: 87, y: 50, size: 10 },
-    expiry: { x: 22, y: 82, size: 8.8 },
-    name: { x: 14, y: 92, size: 8.2, width: 28 }
+    expiry: { x: 22, y: 82, size: 9 },
+    name: { x: 14, y: 92, size: 9.5, width: 28 }
   };
 
   try {
     const saved = JSON.parse(localStorage.getItem('pc_label_settings_landscape_v1') || 'null');
-    return saved || defaults;
+    return saved ? { ...defaults, ...saved } : defaults;
   } catch (_) {
     return defaults;
   }
@@ -61,24 +55,25 @@ function pcFieldCss(s, extra = '') {
 
 function pcBuildSingleLabel(product, settings) {
   const desc = pcFitText(product.description || '', 44);
-  const descSize = Math.min(Number(settings.desc?.size || 10), desc.size);
-  const priceValue = product.price ?? product.shelfLifeDays ?? '';
-  const priceText = priceValue !== '' ? `${priceValue} SR` : '';
+  const descSize = Math.max(Number(settings.desc?.size || 10), desc.size);
+  const nameSize = Math.max(Number(settings.name?.size || 9.5), 9.5);
+  const priceText = pcPriceText(product);
+
   return `
     <div class="label">
-      <div class="field desc" style="${pcFieldCss({...settings.desc, size: descSize}, 'direction:rtl;')}">${desc.html}</div>
+      <div class="field desc" style="${pcFieldCss({ ...settings.desc, size: descSize }, 'direction:rtl;')}">${desc.html}</div>
       <div class="field num" style="${pcFieldCss(settings.calories, 'direction:ltr;')}">${pcEscapeHtml(product.calories)}</div>
       <div class="field num" style="${pcFieldCss(settings.carbs, 'direction:ltr;')}">${pcEscapeHtml(product.carbs)}</div>
       <div class="field num" style="${pcFieldCss(settings.protein, 'direction:ltr;')}">${pcEscapeHtml(product.protein)}</div>
       <div class="field num" style="${pcFieldCss(settings.fat, 'direction:ltr;')}">${pcEscapeHtml(product.fat)}</div>
-      <div class="field expiry" style="${pcFieldCss(settings.expiry, 'direction:ltr;')}">${pcEscapeHtml(priceText)}</div>
-      <div class="field name" style="${pcFieldCss(settings.name, 'direction:rtl;')}">${pcEscapeHtml(product.name || '')}</div>
+      <div class="field price" style="${pcFieldCss(settings.expiry, 'direction:ltr;')}">${pcEscapeHtml(priceText)}</div>
+      <div class="field name" style="${pcFieldCss({ ...settings.name, size: nameSize }, 'direction:rtl;')}">${pcEscapeHtml(product.name || '')}</div>
     </div>`;
 }
 
 function buildPrintDocument(product, copies = 1, test = false) {
   const data = test
-    ? { name: 'اختبار وضوح', description: 'دقيق ٧ حبوب - بروتين شوكولاتة 200G', calories: 322, carbs: 34, protein: 6, fat: 14, shelfLifeDays: 1, price: 15 }
+    ? { name: 'اختبار وضوح', description: 'قهوه لوز 200G', calories: 197.4, carbs: 15, protein: 12.3, fat: 9.8, price: 15, shelfLifeDays: 1 }
     : product;
 
   if (!data) {
@@ -112,7 +107,7 @@ function buildPrintDocument(product, copies = 1, test = false) {
     padding: 0;
     background: #fff;
     overflow: hidden;
-    font-family: Tahoma, 'Arial Unicode MS', Arial, sans-serif;
+    font-family: Tahoma, Arial, sans-serif;
   }
   * { box-sizing: border-box; }
   .label {
@@ -130,20 +125,30 @@ function buildPrintDocument(product, copies = 1, test = false) {
     position: absolute;
     transform: translate(-50%, -50%);
     color: #000;
-    font-family: Tahoma, 'Arial Unicode MS', Arial, sans-serif;
+    font-family: Tahoma, Arial, sans-serif;
     font-weight: 900;
     text-align: center;
-    line-height: 1.05;
+    line-height: 1.16;
     white-space: normal;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
-    text-rendering: optimizeLegibility;
+    text-rendering: geometricPrecision;
   }
-  .desc, .name { font-family: Tahoma, Arial, sans-serif; font-size: 10px !important; font-weight: 900; line-height: 1.2; }
-  .num { font-size: 11px; font-family: Tahoma, Arial, sans-serif; font-weight: 900; }
-  .expiry { font-family: Tahoma, Arial, sans-serif; font-weight: 900; }
+  .desc, .name {
+    font-family: Tahoma, Arial, sans-serif;
+    font-weight: 900;
+    line-height: 1.2;
+  }
+  .num {
+    font-family: Tahoma, Arial, sans-serif;
+    font-weight: 900;
+  }
+  .price {
+    font-family: Tahoma, Arial, sans-serif;
+    font-weight: 900;
+  }
   @media print {
-    html, body { width: 55mm; height: 33.6mm; margin:0; padding:0; overflow:hidden; }
+    html, body { width:55mm; height:33.6mm; margin:0; padding:0; overflow:hidden; }
     .label { width:55mm; height:33.6mm; }
   }
 </style>
