@@ -25,13 +25,13 @@ async function pcEnsureCairoFont() {
 
 function pcGetSettings() {
   const defaults = {
-    desc: { x: 50, y: 31, size: 13, width: 78 },
+    desc: { x: 50, y: 31, size: 16, width: 78 },
     calories: { x: 20, y: 50, size: 10 },
     carbs: { x: 45, y: 50, size: 10 },
     protein: { x: 67, y: 50, size: 10 },
     fat: { x: 87, y: 50, size: 10 },
     expiry: { x: 22, y: 82, size: 9 },
-    name: { x: 14, y: 92, size: 11.5, width: 28 }
+    name: { x: 14, y: 92, size: 13, width: 28 }
   };
 
   try {
@@ -72,21 +72,22 @@ function pcSplitArabicLines(text) {
 }
 
 function pcAutoArabicSize(key, text, base) {
-  // حجم العربي الآن يتبع ضبط الملصق مباشرة.
-  // لا نعمل تصغير تلقائي قوي حتى لا يصغر نص المحتويات.
-  const fallback = key === 'desc' ? 13 : 11.5;
-  const size = Number(base || fallback);
-  return Math.max(7, Math.min(24, size));
+  // العربي يتحول لصورة، لذلك نحتاج نكبره أكثر من النص العادي.
+  // الحجم ما زال يتبع ضبط الملصق، لكن نضربه بمعامل تكبير واضح.
+  const fallback = key === 'desc' ? 14 : 12.5;
+  const raw = Number(base || fallback);
+  const boosted = key === 'desc' ? raw * 1.75 : raw * 1.55;
+  return Math.max(key === 'desc' ? 15 : 13, Math.min(30, boosted));
 }
 
 function pcArabicImage(text, key, baseSize, widthPercent) {
   const lines = pcSplitArabicLines(text);
   const size = pcAutoArabicSize(key, text, baseSize);
 
-  const scale = 7;
-  const w = Math.max(170, Math.round((widthPercent || 40) * 6.4));
+  const scale = 8;
+  const w = Math.max(210, Math.round((widthPercent || 40) * 8.2));
   const lineHeight = size * 1.35;
-  const h = Math.max(50, Math.ceil((lineHeight * lines.length) + 18));
+  const h = Math.max(70, Math.ceil((lineHeight * lines.length) + 26));
 
   const canvas = document.createElement('canvas');
   canvas.width = w * scale;
@@ -104,7 +105,7 @@ function pcArabicImage(text, key, baseSize, widthPercent) {
   const startY = h / 2 - ((lines.length - 1) * lineHeight) / 2;
 
   lines.forEach((line, i) => {
-    ctx.fillText(line, w / 2, startY + i * lineHeight, w - 10);
+    ctx.fillText(line, w / 2, startY + i * lineHeight, w - 14);
   });
 
   return {
