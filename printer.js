@@ -31,14 +31,13 @@ function pcFitText(text, max = 44) {
 
 function pcGetSettings() {
   const defaults = {
-    desc: { x: 50, y: 31, size: 10, width: 78 },
-    calories: { x: 20, y: 50, size: 10 },
-    carbs: { x: 45, y: 50, size: 10 },
-    protein: { x: 67, y: 50, size: 10 },
-    fat: { x: 87, y: 50, size: 10 },
-    expiry: { x: 22, y: 82, size: 9 },
-    name: { x: 14, y: 92, size: 9.5, width: 28 }
-  };
+    .desc,
+.name {
+  font-family: "Arial Unicode MS", Tahoma, Arial, sans-serif;
+  font-size: 12px !important;
+  font-weight: 900;
+  line-height: 1.2;
+}
 
   try {
     const saved = JSON.parse(localStorage.getItem('pc_label_settings_landscape_v1') || 'null');
