@@ -60,32 +60,22 @@ function pcSplitArabicLines(text) {
 
 function pcAutoArabicSize(key, text, base) {
   const len = String(text || '').trim().length;
-  const baseSize = Number(base || 10);
-  let size = baseSize;
+  let size = Number(base || 9);
 
-  // مهم: حجم الخط في ضبط الملصق هو الأساس.
-  // إذا رفعت الحجم من الإعدادات، الطباعة تتجاوب معه.
-  // التصغير التلقائي فقط يقلل قليلاً عند النصوص الطويلة، ولا يلغي اختيارك.
   if (key === 'desc') {
-    if (len <= 18) size = baseSize + 2;
-    else if (len <= 32) size = baseSize + 1;
-    else if (len <= 48) size = baseSize;
-    else if (len <= 68) size = baseSize - 0.7;
-    else size = baseSize - 1.2;
-
-    // لا نسمح للمحتويات تصغر جداً؛ كانت المشكلة أنها صارت صغيرة.
-    size = Math.max(size, 9.8);
+    if (len <= 18) size = Math.max(size, 12);
+    else if (len <= 32) size = Math.max(size, 10.8);
+    else if (len <= 48) size = Math.min(size, 9.6);
+    else size = Math.min(size, 8.8);
   }
 
   if (key === 'name') {
-    if (len <= 12) size = baseSize + 1.2;
-    else if (len <= 24) size = baseSize + 0.4;
-    else size = baseSize - 0.6;
-
-    size = Math.max(size, 8.8);
+    if (len <= 12) size = Math.max(size, 11);
+    else if (len <= 24) size = Math.max(size, 10);
+    else size = Math.min(size, 9);
   }
 
-  return Number(size.toFixed(1));
+  return size;
 }
 
 function pcArabicImage(text, key, baseSize, widthPercent) {
@@ -140,13 +130,13 @@ function pcBuildSingleLabel(product, settings, imageCache) {
   const priceSettings = settings.price || settings.expiry;
   return `
     <div class="label">
-      <img class="field arabic-img desc-img" style="${pcFieldCss(settings.desc, `width:${imageCache.desc.widthPercent}%;`)}" src="${imageCache.desc.src}" alt="">
+      <div class="field desc" style="${pcFieldCss(settings.desc)}">${pcEscapeHtml(product.description || '')}</div>
       <div class="field num" style="${pcFieldCss(settings.calories, 'direction:ltr;')}">${pcEscapeHtml(product.calories)}</div>
       <div class="field num" style="${pcFieldCss(settings.carbs, 'direction:ltr;')}">${pcEscapeHtml(product.carbs)}</div>
       <div class="field num" style="${pcFieldCss(settings.protein, 'direction:ltr;')}">${pcEscapeHtml(product.protein)}</div>
       <div class="field num" style="${pcFieldCss(settings.fat, 'direction:ltr;')}">${pcEscapeHtml(product.fat)}</div>
       <div class="field price" style="${pcFieldCss(priceSettings, 'direction:ltr;')}">${pcPriceHtml(product)}</div>
-      <img class="field arabic-img name-img" style="${pcFieldCss(settings.name, `width:${imageCache.name.widthPercent}%;`)}" src="${imageCache.name.src}" alt="">
+      <div class="field name" style="${pcFieldCss(settings.name)}">${pcEscapeHtml(product.name || '')}</div>
     </div>`;
 }
 
