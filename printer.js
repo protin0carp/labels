@@ -25,13 +25,13 @@ async function pcEnsureCairoFont() {
 
 function pcGetSettings() {
   const defaults = {
-    desc: { x: 50, y: 31, size: 10, width: 78 },
+    desc: { x: 50, y: 31, size: 13, width: 78 },
     calories: { x: 20, y: 50, size: 10 },
     carbs: { x: 45, y: 50, size: 10 },
     protein: { x: 67, y: 50, size: 10 },
     fat: { x: 87, y: 50, size: 10 },
     expiry: { x: 22, y: 82, size: 9 },
-    name: { x: 14, y: 92, size: 9.5, width: 28 }
+    name: { x: 14, y: 92, size: 11.5, width: 28 }
   };
 
   try {
@@ -72,32 +72,21 @@ function pcSplitArabicLines(text) {
 }
 
 function pcAutoArabicSize(key, text, base) {
-  const len = String(text || '').trim().length;
-  let size = Number(base || 9);
-
-  if (key === 'desc') {
-    if (len <= 18) size = Math.max(size, 12);
-    else if (len <= 32) size = Math.max(size, 10.8);
-    else if (len <= 48) size = Math.min(size, 9.6);
-    else size = Math.min(size, 8.8);
-  }
-
-  if (key === 'name') {
-    if (len <= 12) size = Math.max(size, 11);
-    else if (len <= 24) size = Math.max(size, 10);
-    else size = Math.min(size, 9);
-  }
-
-  return size;
+  // حجم العربي الآن يتبع ضبط الملصق مباشرة.
+  // لا نعمل تصغير تلقائي قوي حتى لا يصغر نص المحتويات.
+  const fallback = key === 'desc' ? 13 : 11.5;
+  const size = Number(base || fallback);
+  return Math.max(7, Math.min(24, size));
 }
 
 function pcArabicImage(text, key, baseSize, widthPercent) {
   const lines = pcSplitArabicLines(text);
   const size = pcAutoArabicSize(key, text, baseSize);
 
-  const scale = 5;
-  const w = Math.max(130, Math.round((widthPercent || 40) * 5.4));
-  const h = Math.max(38, Math.ceil((size * 1.42 * lines.length) + 12));
+  const scale = 7;
+  const w = Math.max(170, Math.round((widthPercent || 40) * 6.4));
+  const lineHeight = size * 1.35;
+  const h = Math.max(50, Math.ceil((lineHeight * lines.length) + 18));
 
   const canvas = document.createElement('canvas');
   canvas.width = w * scale;
@@ -112,11 +101,10 @@ function pcArabicImage(text, key, baseSize, widthPercent) {
   ctx.direction = 'rtl';
   ctx.font = `900 ${size}px "Cairo"`;
 
-  const lineHeight = size * 1.25;
   const startY = h / 2 - ((lines.length - 1) * lineHeight) / 2;
 
   lines.forEach((line, i) => {
-    ctx.fillText(line, w / 2, startY + i * lineHeight, w - 8);
+    ctx.fillText(line, w / 2, startY + i * lineHeight, w - 10);
   });
 
   return {
@@ -125,7 +113,6 @@ function pcArabicImage(text, key, baseSize, widthPercent) {
     size
   };
 }
-
 function pcPriceHtml(product) {
   const raw = product?.price;
   if (raw === undefined || raw === null || raw === '') return '';
@@ -143,13 +130,13 @@ function pcBuildSingleLabel(product, settings, imageCache) {
   const priceSettings = settings.price || settings.expiry;
   return `
     <div class="label">
-      <div class="field desc" style="${pcFieldCss(settings.desc)}">${pcEscapeHtml(product.description || '')}</div>
+      <img class="field arabic-img desc-img" style="${pcFieldCss(settings.desc, `width:${imageCache.desc.widthPercent}%;`)}" src="${imageCache.desc.src}" alt="">
       <div class="field num" style="${pcFieldCss(settings.calories, 'direction:ltr;')}">${pcEscapeHtml(product.calories)}</div>
       <div class="field num" style="${pcFieldCss(settings.carbs, 'direction:ltr;')}">${pcEscapeHtml(product.carbs)}</div>
       <div class="field num" style="${pcFieldCss(settings.protein, 'direction:ltr;')}">${pcEscapeHtml(product.protein)}</div>
       <div class="field num" style="${pcFieldCss(settings.fat, 'direction:ltr;')}">${pcEscapeHtml(product.fat)}</div>
       <div class="field price" style="${pcFieldCss(priceSettings, 'direction:ltr;')}">${pcPriceHtml(product)}</div>
-      <div class="field name" style="${pcFieldCss(settings.name)}">${pcEscapeHtml(product.name || '')}</div>
+      <img class="field arabic-img name-img" style="${pcFieldCss(settings.name, `width:${imageCache.name.widthPercent}%;`)}" src="${imageCache.name.src}" alt="">
     </div>`;
 }
 
