@@ -43,13 +43,13 @@ function setCloudStatus(text, ok = true) {
 }
 
 const defaultSettings = {
-  desc: { x: 50, y: 31, size: 10, width: 78 },
+  desc: { x: 50, y: 31, size: 16, width: 78 },
   calories: { x: 20, y: 50, size: 10 },
   carbs: { x: 45, y: 50, size: 10 },
   protein: { x: 67, y: 50, size: 10 },
   fat: { x: 87, y: 50, size: 10 },
   expiry: { x: 22, y: 82, size: 9 },
-  name: { x: 14, y: 92, size: 9.5, width: 28 }
+  name: { x: 14, y: 92, size: 13, width: 28 }
 };
 
 const defaultProducts = [
@@ -149,21 +149,10 @@ function priceHtml(product){
   return `<span class="price-number">${v} SR</span>`;
 }
 function autoFontSize(key, text, base){
-  const len = String(text || '').length;
-  let size = Number(base || 9);
-  if(key === 'desc') {
-    if(len <= 18) size = Math.max(size, 11);
-    else if(len <= 32) size = Math.max(size, 10);
-    else if(len <= 48) size = Math.min(size, 9);
-    else size = Math.min(size, 8);
-  }
-  if(key === 'name') {
-    if(len <= 12) size = Math.max(size, 10);
-    else if(len <= 24) size = Math.max(size, 9.5);
-    else size = Math.min(size, 8.5);
-  }
-  return size;
+  // حجم الخط الآن طبيعي ويأخذ الرقم من ضبط الملصق كما هو.
+  return Number(base || 12);
 }
+
 function fitText(text,max=42){text=String(text||'');if(text.length<=max)return text;const mid=Math.ceil(text.length/2);let cut=text.lastIndexOf(' ',mid);if(cut<10)cut=mid;return text.slice(0,cut).trim()+"\n"+text.slice(cut).trim();}
 function nav(view){document.querySelectorAll('.nav').forEach(b=>b.classList.toggle('active',b.dataset.view===view));document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById('view-'+view).classList.add('active'); if(view==='settings') renderEditor();}
 function renderProducts(){const q=(document.getElementById('searchInput')?.value||'').trim();const list=document.getElementById('productList');if(!list)return;list.innerHTML='';products.filter(p=>!q||p.name.includes(q)||p.description.includes(q)).forEach(p=>{const el=document.createElement('div');el.className='product-item '+(selected?.id===p.id?'active':'');el.innerHTML=`<h3>${p.name}</h3><p>${p.description}</p><div class="chips"><span>${priceText(p)}</span><span>F ${p.fat}</span><span>P ${p.protein}</span><span>C ${p.carbs}</span><span>Cal ${p.calories}</span></div>`;el.onclick=()=>{selected=p;window.selected=p;renderProducts();renderSelected();renderEditor();};list.appendChild(el);});}
@@ -185,7 +174,7 @@ function makeLabel(product, editable=false){
     if(key === 'expiry') { el.innerHTML = priceHtml(product); } else { el.textContent=map[key]; }
     el.style.left=s.x+'%';
     el.style.top=s.y+'%';
-    el.style.fontSize=autoFontSize(key, map[key], s.size)+'px';
+    el.style.fontSize=Number(s.size || 12)+'px';
     if(s.width)el.style.width=s.width+'%';
     if(editable){el.addEventListener('pointerdown',startDrag);}
     wrap.appendChild(el);
@@ -230,7 +219,7 @@ function ensureCopiesInput(){
 function ensureFontSizeDisplay(){
   const range=document.getElementById('fontSizeRange');
   if(!range || document.getElementById('fontSizeValue')) return;
-  range.min='6'; range.max='18'; range.step='0.5';
+  range.min='6'; range.max='40'; range.step='0.5';
   const div=document.createElement('div');
   div.id='fontSizeValue';
   div.className='font-size-value';
