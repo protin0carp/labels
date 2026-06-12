@@ -16,11 +16,23 @@ function pcExpiryDate(product) {
 
 function pcFitText(text, max = 44) {
   text = String(text || '').trim();
-  if (text.length <= max) return text;
+  const safe = pcEscapeHtml(text);
+
+  if (text.length <= 25) {
+    return { html: safe, size: 10 };
+  }
+
+  if (text.length <= 40) {
+    return { html: safe, size: 9 };
+  }
+
   const mid = Math.ceil(text.length / 2);
   let cut = text.lastIndexOf(' ', mid);
   if (cut < 10) cut = mid;
-  return text.slice(0, cut).trim() + '<br>' + text.slice(cut).trim();
+
+  const first = pcEscapeHtml(text.slice(0, cut).trim());
+  const second = pcEscapeHtml(text.slice(cut).trim());
+  return { html: first + '<br>' + second, size: 8 };
 }
 
 function pcGetSettings() {
@@ -30,7 +42,7 @@ function pcGetSettings() {
     carbs: { x: 45, y: 50, size: 10 },
     protein: { x: 67, y: 50, size: 10 },
     fat: { x: 87, y: 50, size: 10 },
-    expiry: { x: 22, y: 82, size: 7.8 },
+    expiry: { x: 22, y: 82, size: 8.8 },
     name: { x: 14, y: 92, size: 8.2, width: 28 }
   };
 
@@ -48,22 +60,25 @@ function pcFieldCss(s, extra = '') {
 }
 
 function pcBuildSingleLabel(product, settings) {
-  const desc = pcFitText(pcEscapeHtml(product.description || ''), 44);
+  const desc = pcFitText(product.description || '', 44);
+  const descSize = Math.min(Number(settings.desc?.size || 10), desc.size);
+  const priceValue = product.price ?? product.shelfLifeDays ?? '';
+  const priceText = priceValue !== '' ? `${priceValue} SR` : '';
   return `
     <div class="label">
-      <div class="field desc" style="${pcFieldCss(settings.desc, 'direction:rtl;')}">${desc}</div>
+      <div class="field desc" style="${pcFieldCss({...settings.desc, size: descSize}, 'direction:rtl;')}">${desc.html}</div>
       <div class="field num" style="${pcFieldCss(settings.calories, 'direction:ltr;')}">${pcEscapeHtml(product.calories)}</div>
       <div class="field num" style="${pcFieldCss(settings.carbs, 'direction:ltr;')}">${pcEscapeHtml(product.carbs)}</div>
       <div class="field num" style="${pcFieldCss(settings.protein, 'direction:ltr;')}">${pcEscapeHtml(product.protein)}</div>
       <div class="field num" style="${pcFieldCss(settings.fat, 'direction:ltr;')}">${pcEscapeHtml(product.fat)}</div>
-      <div class="field expiry" style="${pcFieldCss(settings.expiry, 'direction:ltr;')}">${pcEscapeHtml(pcExpiryDate(product))}</div>
+      <div class="field expiry" style="${pcFieldCss(settings.expiry, 'direction:ltr;')}">${pcEscapeHtml(priceText)}</div>
       <div class="field name" style="${pcFieldCss(settings.name, 'direction:rtl;')}">${pcEscapeHtml(product.name || '')}</div>
     </div>`;
 }
 
 function buildPrintDocument(product, copies = 1, test = false) {
   const data = test
-    ? { name: 'اختبار وضوح', description: 'دقيق ٧ حبوب - بروتين شوكولاتة 200G', calories: 322, carbs: 34, protein: 6, fat: 14, shelfLifeDays: 1 }
+    ? { name: 'اختبار وضوح', description: 'دقيق ٧ حبوب - بروتين شوكولاتة 200G', calories: 322, carbs: 34, protein: 6, fat: 14, shelfLifeDays: 1, price: 15 }
     : product;
 
   if (!data) {
@@ -124,9 +139,9 @@ function buildPrintDocument(product, copies = 1, test = false) {
     print-color-adjust: exact;
     text-rendering: optimizeLegibility;
   }
-  .desc, .name { font-family: Tahoma, 'Arial Unicode MS', Arial, sans-serif; font-size: 8.6px !important; font-weight: 700; }
-  .num { font-size: 11px; font-family: Tahoma, Arial, sans-serif; font-weight: 700; }
-  .expiry { font-family: Tahoma, 'Arial Unicode MS', Arial, sans-serif; }
+  .desc, .name { font-family: Tahoma, Arial, sans-serif; font-size: 10px !important; font-weight: 900; line-height: 1.2; }
+  .num { font-size: 11px; font-family: Tahoma, Arial, sans-serif; font-weight: 900; }
+  .expiry { font-family: Tahoma, Arial, sans-serif; font-weight: 900; }
   @media print {
     html, body { width: 55mm; height: 33.6mm; margin:0; padding:0; overflow:hidden; }
     .label { width:55mm; height:33.6mm; }
