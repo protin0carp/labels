@@ -60,22 +60,32 @@ function pcSplitArabicLines(text) {
 
 function pcAutoArabicSize(key, text, base) {
   const len = String(text || '').trim().length;
-  let size = Number(base || 9);
+  const baseSize = Number(base || 10);
+  let size = baseSize;
 
+  // مهم: حجم الخط في ضبط الملصق هو الأساس.
+  // إذا رفعت الحجم من الإعدادات، الطباعة تتجاوب معه.
+  // التصغير التلقائي فقط يقلل قليلاً عند النصوص الطويلة، ولا يلغي اختيارك.
   if (key === 'desc') {
-    if (len <= 18) size = Math.max(size, 12);
-    else if (len <= 32) size = Math.max(size, 10.8);
-    else if (len <= 48) size = Math.min(size, 9.6);
-    else size = Math.min(size, 8.8);
+    if (len <= 18) size = baseSize + 2;
+    else if (len <= 32) size = baseSize + 1;
+    else if (len <= 48) size = baseSize;
+    else if (len <= 68) size = baseSize - 0.7;
+    else size = baseSize - 1.2;
+
+    // لا نسمح للمحتويات تصغر جداً؛ كانت المشكلة أنها صارت صغيرة.
+    size = Math.max(size, 9.8);
   }
 
   if (key === 'name') {
-    if (len <= 12) size = Math.max(size, 11);
-    else if (len <= 24) size = Math.max(size, 10);
-    else size = Math.min(size, 9);
+    if (len <= 12) size = baseSize + 1.2;
+    else if (len <= 24) size = baseSize + 0.4;
+    else size = baseSize - 0.6;
+
+    size = Math.max(size, 8.8);
   }
 
-  return size;
+  return Number(size.toFixed(1));
 }
 
 function pcArabicImage(text, key, baseSize, widthPercent) {
