@@ -30,21 +30,46 @@ function pcGetSettings() {
     carbs: { x: 45, y: 50, size: 10 },
     protein: { x: 67, y: 50, size: 10 },
     fat: { x: 87, y: 50, size: 10 },
-    expiry: { x: 22, y: 82, size: 9 },
+    price: { x: 22, y: 82, size: 11 },
+    expiry: { x: 22, y: 82, size: 11 },
     name: { x: 14, y: 92, size: 13, width: 28 }
   };
 
+  function cleanField(key, value) {
+    const d = defaults[key] || { x: 50, y: 50, size: 12 };
+    const v = value && typeof value === 'object' ? value : {};
+    const x = Number.isFinite(Number(v.x)) ? Number(v.x) : d.x;
+    const y = Number.isFinite(Number(v.y)) ? Number(v.y) : d.y;
+    const size = Number.isFinite(Number(v.size)) ? Number(v.size) : d.size;
+    const width = Number.isFinite(Number(v.width)) ? Number(v.width) : d.width;
+    const out = {
+      x: Math.max(0, Math.min(100, x)),
+      y: Math.max(0, Math.min(100, y)),
+      size: Math.max(5, Math.min(40, size))
+    };
+    if (d.width !== undefined || Number.isFinite(width)) {
+      out.width = Math.max(5, Math.min(100, width || d.width || 40));
+    }
+    return out;
+  }
+
   try {
-    const saved = JSON.parse(localStorage.getItem('pc_label_settings_landscape_v1') || 'null');
-    return saved ? { ...defaults, ...saved } : defaults;
+    const saved = JSON.parse(localStorage.getItem('pc_label_settings_landscape_v1') || 'null') || {};
+    const merged = { ...defaults, ...saved };
+    Object.keys(defaults).forEach(k => merged[k] = cleanField(k, merged[k]));
+    return merged;
   } catch (_) {
     return defaults;
   }
 }
 
 function pcFieldCss(s, extra = '') {
-  const width = s.width ? `width:${s.width}%;` : '';
-  return `left:${s.x}%;top:${s.y}%;font-size:${s.size}px;${width}${extra}`;
+  const safe = s && typeof s === 'object' ? s : {};
+  const x = Math.max(0, Math.min(100, Number(safe.x ?? 50)));
+  const y = Math.max(0, Math.min(100, Number(safe.y ?? 50)));
+  const size = Math.max(5, Math.min(40, Number(safe.size ?? 12)));
+  const width = Number.isFinite(Number(safe.width)) ? `width:${Math.max(5, Math.min(100, Number(safe.width)))}%;` : '';
+  return `left:${x}%;top:${y}%;font-size:${size}px;${width}${extra}`;
 }
 
 function pcSplitArabicLines(text) {
@@ -72,7 +97,6 @@ function pcSplitArabicLines(text) {
 }
 
 function pcAutoArabicSize(key, text, base) {
-  // لا يوجد تصغير تلقائي. الحجم من ضبط الملصق فقط.
   return Number(base || 12);
 }
 
@@ -148,9 +172,9 @@ async function buildPrintDocument(product, copies = 1, test = false) {
     return;
   }
 
-  await pcEnsureCairoFont();
+  if (typeof pcEnsureCairoFont === 'function') await pcEnsureCairoFont();
 
-  const count = Math.max(1, Number(copies || 1));
+  const count = Math.max(1, Math.min(200, parseInt(copies, 10) || 1));
   const settings = pcGetSettings();
 
   const imageCache = {};
@@ -215,7 +239,7 @@ async function buildPrintDocument(product, copies = 1, test = false) {
     font-family: Cairo, Arial, Tahoma, sans-serif;
     font-weight: 900;
     direction: rtl;
-    line-height: 1.18;
+    line-height: 1.2;
     white-space: normal;
   }
   .num {
@@ -240,6 +264,10 @@ async function buildPrintDocument(product, copies = 1, test = false) {
     object-fit: contain;
     vertical-align: -4px;
     margin-right: 3px;
+  }
+  .label:last-child {
+    page-break-after: auto;
+    break-after: auto;
   }
   @media print {
     html, body { width:55mm; height:33.6mm; margin:0; padding:0; overflow:hidden; }
@@ -267,7 +295,7 @@ ${labels}
 
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('printBtn')?.addEventListener('click', () => {
-    const copies = Math.max(1, Number(document.getElementById('copiesInput')?.value || 1));
+    const copies = Math.max(1, Math.min(200, parseInt(document.getElementById('copiesInput')?.value, 10) || 1));
     const product = (typeof window.getSelectedProduct === 'function')
       ? window.getSelectedProduct()
       : (window.selected || (typeof selected !== 'undefined' ? selected : null));
