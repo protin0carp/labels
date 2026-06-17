@@ -111,24 +111,74 @@ function pcArabicImage(text, key, baseSize, widthPercent) {
   };
 }
 
-function pcPriceHtml(product) {
+
+async function pcEnsurePrintFonts() {
+  try {
+    if (document.fonts && document.fonts.load) {
+      await document.fonts.load('700 18px "Noto Kufi Arabic"');
+      await document.fonts.load('800 18px "Noto Kufi Arabic"');
+      await document.fonts.ready;
+    }
+  } catch (_) {}
+}
+
+function pcTextImage(text, options = {}) {
+  const value = String(text ?? '').trim();
+  const size = Number(options.size || 12);
+  const weight = Number(options.weight || 700);
+  const widthPercent = Number(options.widthPercent || 35);
+  const direction = options.direction || 'rtl';
+
+  const scale = 8;
+  const w = Math.max(120, Math.round(widthPercent * 7.2));
+  const h = Math.max(42, Math.ceil(size * 2.45));
+
+  const canvas = document.createElement('canvas');
+  canvas.width = w * scale;
+  canvas.height = h * scale;
+
+  const ctx = canvas.getContext('2d');
+  ctx.scale(scale, scale);
+  ctx.clearRect(0, 0, w, h);
+  ctx.fillStyle = '#000';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.direction = direction;
+  ctx.font = `${weight} ${size}px "Noto Kufi Arabic", Cairo, Arial, Tahoma, sans-serif`;
+
+  ctx.fillText(value, w / 2, h / 2, w - 8);
+
+  return {
+    src: canvas.toDataURL('image/png'),
+    widthPercent,
+    heightPx: h
+  };
+}
+
+function pcPriceText(product) {
   const raw = product?.price;
   if (raw === undefined || raw === null || raw === '') return '';
-  const price = pcEscapeHtml(raw);
-  return `<span class="price-number">${price} SR</span>`;
+  return `${pcEscapeHtml(raw)} SR`;
 }
 
 function pcBuildSingleLabel(product, settings, imageCache) {
   const priceSettings = settings.price || settings.expiry;
+  const priceHtml = imageCache?.price?.src
+    ? `<img class="field text-img price-img" style="${pcFieldCss(priceSettings, `width:${imageCache.price.widthPercent}%;`)}" src="${imageCache.price.src}" alt="">`
+    : '';
+  const nameHtml = imageCache?.name?.src
+    ? `<img class="field text-img name-img" style="${pcFieldCss(settings.name, `width:${imageCache.name.widthPercent}%;`)}" src="${imageCache.name.src}" alt="">`
+    : `<div class="field name" style="${pcFieldCss(settings.name, 'direction:rtl;')}">${pcEscapeHtml(product.name || '')}</div>`;
+
   return `
     <div class="label">
-      <div class="field desc" style="${pcFieldCss(settings.desc)}">${pcEscapeHtml(product.description || '')}</div>
+      <div class="field desc" style="${pcFieldCss(settings.desc, 'direction:rtl;')}">${pcEscapeHtml(product.description || '')}</div>
       <div class="field num" style="${pcFieldCss(settings.calories, 'direction:ltr;')}">${pcEscapeHtml(product.calories)}</div>
       <div class="field num" style="${pcFieldCss(settings.carbs, 'direction:ltr;')}">${pcEscapeHtml(product.carbs)}</div>
       <div class="field num" style="${pcFieldCss(settings.protein, 'direction:ltr;')}">${pcEscapeHtml(product.protein)}</div>
       <div class="field num" style="${pcFieldCss(settings.fat, 'direction:ltr;')}">${pcEscapeHtml(product.fat)}</div>
-      <div class="field price" style="${pcFieldCss(priceSettings, 'direction:ltr;')}">${pcPriceHtml(product)}</div>
-      <div class="field name" style="${pcFieldCss(settings.name)}">${pcEscapeHtml(product.name || '')}</div>
+      ${priceHtml}
+      ${nameHtml}
     </div>`;
 }
 
@@ -142,12 +192,26 @@ async function buildPrintDocument(product, copies = 1, test = false) {
     return;
   }
 
-  await pcEnsureCairoFont();
+  await pcEnsurePrintFonts();
 
   const count = Math.max(1, Number(copies || 1));
   const settings = pcGetSettings();
 
-  const imageCache = {};
+  const priceText = pcPriceText(data);
+  const imageCache = {
+    name: pcTextImage(data.name || '', {
+      size: settings.name?.size || 13,
+      weight: 700,
+      widthPercent: settings.name?.width || 28,
+      direction: 'rtl'
+    }),
+    price: priceText ? pcTextImage(priceText, {
+      size: (settings.price || settings.expiry)?.size || 11,
+      weight: 700,
+      widthPercent: 24,
+      direction: 'ltr'
+    }) : null
+  };
 
   let labels = '';
   for (let i = 0; i < count; i++) labels += pcBuildSingleLabel(data, settings, imageCache);
@@ -201,6 +265,11 @@ async function buildPrintDocument(product, copies = 1, test = false) {
     print-color-adjust: exact;
     text-rendering: geometricPrecision;
     -webkit-font-smoothing: antialiased;
+  }
+  .text-img {
+    display: block;
+    height: auto;
+    image-rendering: auto;
   }
   .arabic-img {
     display: block;
