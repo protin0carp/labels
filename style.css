@@ -23,10 +23,6 @@
 .price-number{display:inline-block}
 
 
-/* =========================================================
-   Premium White / Gray UI Identity
-   واجهة تشغيل احترافية بدون شروحات تقنية
-   ========================================================= */
 @import url('https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;600;700;800&display=swap');
 
 :root{
@@ -132,7 +128,7 @@ body{
   color:#374151 !important;
 }
 
-/* Hide printer technical explanation only */
+
 .hint{
   display:none !important;
 }
@@ -164,7 +160,7 @@ textarea:focus{
   box-shadow:0 0 0 3px rgba(143,207,31,.18) !important;
 }
 
-/* Make contents box premium and readable */
+
 #pDesc,
 textarea.field{
   min-height:120px !important;
@@ -509,7 +505,7 @@ html body #showPricePrintWrap{
   max-width:100%;
 }
 
-/* منع الأخضر القديم نهائياً */
+
 html body .sidebar *{
   text-shadow:none!important;
 }
