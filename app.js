@@ -25,7 +25,7 @@ async function initFirebase() {
     db = fsMod.getFirestore(app);
     fb = fsMod;
     firebaseReady = true;
-    setCloudStatus('متصل بالسحابة', true);
+    setCloudStatus('متصل ', true);
     return true;
   } catch (err) {
     console.error('Firebase init error:', err);
