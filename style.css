@@ -1,0 +1,524 @@
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@500;700;800;900&display=swap');
+:root{--green:#35b319;--green2:#0e6d2d;--dark:#242421;--panel:#302f2a;--panel2:#39362f;--text:#fff;--muted:#d5d0c5;--line:rgba(255,255,255,.18);--label-w:55mm;--label-h:33.6mm}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#64655f,#24251f);color:var(--text);font-family:Cairo,Arial,Tahoma,sans-serif;min-height:100vh;overflow-x:hidden}.sidebar{position:fixed;right:0;top:0;bottom:0;width:230px;background:linear-gradient(180deg,#31b51d,#137029);padding:26px 18px;display:flex;flex-direction:column;gap:14px}.brand{display:flex;align-items:center;gap:12px;margin-bottom:20px}.brand strong{display:block;font-size:18px}.brand small{display:block;font-size:12px}.logo-dot{width:46px;height:46px;border-radius:14px;background:#fff542;box-shadow:0 0 18px rgba(255,245,66,.45)}.nav{border:0;border-radius:14px;background:rgba(0,0,0,.22);color:#fff;padding:15px 18px;font-family:inherit;font-weight:800;text-align:right;cursor:pointer}.nav.active,.nav:hover{background:rgba(0,0,0,.45)}.sidebar footer{margin-top:auto;font-size:11px;color:#eaffdf;text-align:center;opacity:.9}.app{margin-right:230px;padding:36px}.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:26px}.topbar h1{margin:0;font-size:34px;font-weight:900}.topbar p{margin:8px 0 0;color:var(--muted)}.status{background:#232923;border:1px solid var(--line);border-radius:100px;padding:10px 18px;font-weight:800}.status span{display:inline-block;width:10px;height:10px;background:#caff39;border-radius:50%;margin-right:8px}.view{display:none}.view.active{display:block}.view.grid-two{display:none}.view.grid-two.active{display:grid;grid-template-columns:1fr 1fr;gap:22px}.panel{background:linear-gradient(180deg,rgba(40,39,35,.92),rgba(34,33,29,.92));border:1px solid var(--line);border-radius:26px;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.22)}.panel.wide{max-width:1050px}.panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.panel-head h2{margin:0;font-size:23px}.panel-head span{background:#77705e;color:#fff;border-radius:100px;padding:7px 13px;font-size:12px;font-weight:800}.field{width:100%;height:52px;border-radius:15px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff;padding:0 16px;font-family:inherit;font-weight:800;font-size:16px;outline:none}.product-list,.manage-list{display:flex;flex-direction:column;gap:12px;margin-top:18px}.product-item{border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.05);border-radius:18px;padding:16px;cursor:pointer}.product-item.active{border-color:var(--green);box-shadow:inset 0 0 0 1px var(--green)}.product-item h3{margin:0 0 4px;font-size:18px}.product-item p{margin:0;color:#ded8ca;font-size:13px}.chips{display:flex;gap:8px;margin-top:9px;flex-wrap:wrap}.chips span{background:#807b6f;color:white;border-radius:12px;padding:4px 8px;font-size:11px;font-weight:900}.selected-card{background:rgba(255,255,255,.06);border:1px dashed rgba(255,255,255,.22);border-radius:24px;padding:22px}.selected-card h3{font-size:29px;margin:0 0 8px}.selected-card p{margin:0 0 14px;color:#efeade}.nutrition-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:20px 0}.nutrition-row div{background:#33342f;border:1px solid rgba(255,255,255,.18);border-radius:15px;text-align:center;padding:13px 5px}.nutrition-row b{display:block;font-size:20px}.nutrition-row small{font-size:11px;color:#e6decb}.primary,.ghost{width:100%;height:52px;border:0;border-radius:15px;font-family:inherit;font-weight:900;font-size:15px;cursor:pointer;margin-top:12px}.primary{background:linear-gradient(90deg,#41d51e,#7cff00);color:#fff}.ghost{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:#fff}.form-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.form-grid button{margin-top:0}.hint{color:#efeade;line-height:1.8}.control-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:15px 0}.printer-card{background:rgba(255,255,255,.08);border-radius:18px;padding:22px;display:flex;gap:16px}.label-panel{display:flex;flex-direction:column;align-items:center}.label-preview{position:relative;width:min(100%,520px);aspect-ratio:55/33.6;background:#fff;border-radius:9px;overflow:hidden;box-shadow:0 0 0 10px rgba(255,255,255,.14);color:#111;direction:ltr;user-select:none}.label-preview::before{content:"";position:absolute;inset:0;background:url('assets/label-template.jpg') center/100% 100% no-repeat;opacity:.88}.label-field{position:absolute;left:0;top:0;transform:translate(-50%,-50%);z-index:2;color:#111;font-family:Cairo,Tahoma,Arial,sans-serif;font-weight:900;text-align:center;white-space:pre-line;line-height:1.12;letter-spacing:0;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}.label-field.desc{direction:rtl;font-family:Cairo,Tahoma,Arial,sans-serif;font-weight:900}.label-field.name{direction:rtl;font-family:Cairo,Tahoma,Arial,sans-serif;font-weight:900}.editor-mode .label-field{cursor:grab}.editor-mode .label-field.selected{outline:1px dashed #7c6a27;background:rgba(255,236,120,.18);border-radius:4px}.print-body{margin:0;background:white}.print-label{position:relative;width:var(--label-w);height:var(--label-h);overflow:hidden;background:transparent;page-break-after:always;break-after:page;color:#000;direction:ltr}.print-label .label-field{color:#000;text-shadow:none;-webkit-print-color-adjust:exact;print-color-adjust:exact}.only-print{display:none}@media(max-width:900px){.sidebar{position:static;width:auto;flex-direction:row;overflow:auto}.sidebar footer{display:none}.app{margin-right:0;padding:18px}.view.grid-two.active{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.topbar{display:block}.topbar h1{font-size:26px}}@media print{@page{size:55mm 33.6mm;margin:0}html,body{width:55mm!important;height:auto!important;margin:0!important;padding:0!important;background:#fff!important;overflow:visible!important}.app,.sidebar,.topbar,.view,.panel{display:none!important}.print-label{display:block!important;width:55mm!important;height:33.6mm!important;margin:0!important;padding:0!important;background:transparent!important;box-shadow:none!important;border:0!important}.label-field{font-family:Arial,Tahoma,sans-serif!important;font-weight:900!important;color:#000!important;-webkit-font-smoothing:none!important;text-rendering:geometricPrecision!important}.label-field.desc,.label-field.name{font-family:Tahoma,Arial,sans-serif!important}}
+/* Product management actions */
+.manage-item{display:flex;align-items:center;justify-content:space-between;gap:12px}.manage-info{flex:1}.manage-actions{display:flex;gap:8px;align-items:center}.mini{border:0;border-radius:12px;padding:9px 13px;font-family:inherit;font-weight:900;cursor:pointer;background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.18)}.mini.danger{background:rgba(180,30,30,.22);border-color:rgba(255,80,80,.28)}
+
+/* Font size value display in label settings */
+.font-size-value{
+  margin:8px 0 10px;
+  color:#fff7c7;
+  font-size:13px;
+  font-weight:900;
+  text-align:center;
+}
+
+/* price field keeps the old expiry position name for compatibility */
+.label-field.expiry{
+  direction:ltr;
+  font-family:Cairo,Tahoma,Arial,sans-serif;
+  font-weight:900;
+}
+.riyal-icon{width:16px;height:16px;object-fit:contain;vertical-align:-1px;margin-right:2px}
+.price-number{display:inline-block}
+
+
+/* =========================================================
+   Premium White / Gray UI Identity
+   واجهة تشغيل احترافية بدون شروحات تقنية
+   ========================================================= */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;600;700;800&display=swap');
+
+:root{
+  --green:#8fcf1f;
+  --green2:#6da816;
+  --dark:#111827;
+  --panel:#ffffff;
+  --panel2:#ffffff;
+  --text:#111827;
+  --muted:#6b7280;
+  --line:#e5e7eb;
+  --soft:#f5f6f7;
+}
+
+body{
+  background:#f5f6f7 !important;
+  color:#111827 !important;
+  font-family:'Noto Kufi Arabic',Cairo,Arial,Tahoma,sans-serif !important;
+}
+
+/* Sidebar */
+.sidebar{
+  background:#ffffff !important;
+  border-left:1px solid #e5e7eb !important;
+  box-shadow:-8px 0 24px rgba(17,24,39,.04) !important;
+}
+
+.brand strong{
+  color:#111827 !important;
+}
+
+.brand small{
+  color:#6b7280 !important;
+}
+
+.logo-dot{
+  background:#f3f4f6 !important;
+  border:1px solid #e5e7eb !important;
+  box-shadow:none !important;
+}
+
+.nav{
+  background:#ffffff !important;
+  color:#4b5563 !important;
+  border:1px solid #e5e7eb !important;
+  border-radius:999px !important;
+  box-shadow:none !important;
+}
+
+.nav.active,
+.nav:hover{
+  background:#eef7dc !important;
+  color:#111827 !important;
+  border-color:#c8e899 !important;
+}
+
+.sidebar footer{
+  color:#6b7280 !important;
+}
+
+/* Layout */
+.app{
+  background:#f5f6f7 !important;
+}
+
+.topbar h1{
+  color:#111827 !important;
+}
+
+.topbar p{
+  color:#6b7280 !important;
+}
+
+.status{
+  background:#ffffff !important;
+  color:#111827 !important;
+  border:1px solid #e5e7eb !important;
+  box-shadow:0 8px 20px rgba(17,24,39,.04) !important;
+}
+
+.status span{
+  background:#8fcf1f !important;
+}
+
+/* Cards / Panels */
+.panel,
+.selected-card,
+.printer-card{
+  background:#ffffff !important;
+  border:1px solid #e5e7eb !important;
+  border-radius:18px !important;
+  box-shadow:0 12px 30px rgba(17,24,39,.06) !important;
+  color:#111827 !important;
+}
+
+.panel-head h2,
+.selected-card h3{
+  color:#111827 !important;
+}
+
+.panel-head span{
+  background:#f3f4f6 !important;
+  color:#374151 !important;
+}
+
+/* Hide printer technical explanation only */
+.hint{
+  display:none !important;
+}
+
+/* Inputs */
+.field,
+input,
+select,
+textarea{
+  background:#ffffff !important;
+  color:#111827 !important;
+  border:1px solid #d1d5db !important;
+  border-radius:12px !important;
+  box-shadow:none !important;
+  font-family:'Noto Kufi Arabic',Cairo,Arial,Tahoma,sans-serif !important;
+}
+
+.field::placeholder,
+input::placeholder,
+textarea::placeholder{
+  color:#9ca3af !important;
+}
+
+.field:focus,
+input:focus,
+select:focus,
+textarea:focus{
+  border-color:#8fcf1f !important;
+  box-shadow:0 0 0 3px rgba(143,207,31,.18) !important;
+}
+
+/* Make contents box premium and readable */
+#pDesc,
+textarea.field{
+  min-height:120px !important;
+  line-height:1.75 !important;
+  resize:vertical !important;
+  white-space:pre-wrap !important;
+}
+
+/* Product list */
+.product-item{
+  background:#ffffff !important;
+  border:1px solid #e5e7eb !important;
+  border-radius:14px !important;
+  color:#111827 !important;
+  box-shadow:none !important;
+}
+
+.product-item:hover{
+  background:#fafafa !important;
+  border-color:#d1d5db !important;
+}
+
+.product-item.active{
+  border-color:#8fcf1f !important;
+  box-shadow:0 0 0 3px rgba(143,207,31,.16) !important;
+}
+
+.product-item h3{
+  color:#111827 !important;
+}
+
+.product-item p{
+  color:#6b7280 !important;
+  white-space:normal !important;
+  overflow:visible !important;
+  display:block !important;
+  line-height:1.7 !important;
+}
+
+/* Chips */
+.chips span{
+  background:#f3f4f6 !important;
+  color:#374151 !important;
+  border:1px solid #e5e7eb !important;
+}
+
+/* Selected / nutrition */
+.selected-card{
+  border-style:solid !important;
+}
+
+.selected-card p{
+  color:#6b7280 !important;
+}
+
+.nutrition-row div{
+  background:#f9fafb !important;
+  border:1px solid #e5e7eb !important;
+  color:#111827 !important;
+}
+
+.nutrition-row small{
+  color:#6b7280 !important;
+}
+
+/* Buttons */
+.primary,
+.ghost,
+.mini,
+button{
+  font-family:'Noto Kufi Arabic',Cairo,Arial,Tahoma,sans-serif !important;
+}
+
+.primary{
+  background:#8fcf1f !important;
+  color:#111827 !important;
+  border:1px solid #8fcf1f !important;
+  box-shadow:none !important;
+}
+
+.primary:hover{
+  background:#7fbd19 !important;
+}
+
+.ghost{
+  background:#ffffff !important;
+  color:#111827 !important;
+  border:1px solid #d1d5db !important;
+}
+
+.ghost:hover,
+.mini:hover{
+  background:#f9fafb !important;
+}
+
+.mini{
+  background:#ffffff !important;
+  color:#111827 !important;
+  border:1px solid #d1d5db !important;
+}
+
+.mini.danger{
+  background:#ffffff !important;
+  color:#dc2626 !important;
+  border-color:#fecaca !important;
+}
+
+/* Print area simplification */
+.control-row{
+  max-width:360px;
+}
+
+#printBtn{
+  background:#8fcf1f !important;
+  color:#111827 !important;
+}
+
+#showPricePrintWrap{
+  background:#ffffff !important;
+  border:1px solid #e5e7eb !important;
+  border-radius:12px !important;
+  padding:10px 12px !important;
+  color:#111827 !important;
+  width:max-content;
+  max-width:100%;
+}
+
+/* Label preview remains clean */
+.label-preview{
+  background:#ffffff !important;
+  box-shadow:0 12px 30px rgba(17,24,39,.08) !important;
+}
+
+.label-field,
+.label-field.desc,
+.label-field.name,
+.label-field.expiry{
+  font-family:'Noto Kufi Arabic',Cairo,Tahoma,Arial,sans-serif !important;
+}
+
+/* Font size value */
+.font-size-value{
+  color:#374151 !important;
+}
+
+/* Mobile */
+@media(max-width:900px){
+  .sidebar{
+    border-left:0 !important;
+    border-bottom:1px solid #e5e7eb !important;
+  }
+}
+
+/* Do not affect actual thermal print rules */
+@media print{
+  body{
+    background:#fff !important;
+  }
+}
+
+
+
+/* Print price checkbox */
+.print-option-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-top:10px;
+  font-weight:700;
+  color:#111827;
+}
+.print-option-row input{
+  width:18px!important;
+  height:18px!important;
+  min-height:18px!important;
+  padding:0!important;
+  accent-color:#8fcf1f;
+}
+
+
+/* PREMIUM_WHITE_UI_STRONG_FINAL */
+html body{
+  background:#f5f6f7!important;
+  color:#111827!important;
+  font-family:'Noto Kufi Arabic',Cairo,Arial,Tahoma,sans-serif!important;
+}
+
+html body .sidebar{
+  background:#ffffff!important;
+  background-image:none!important;
+  border-left:1px solid #e5e7eb!important;
+  box-shadow:-8px 0 24px rgba(17,24,39,.05)!important;
+}
+
+html body .brand strong,
+html body .topbar h1,
+html body .panel-head h2,
+html body .selected-card h3,
+html body .product-item h3{
+  color:#111827!important;
+}
+
+html body .brand small,
+html body .topbar p,
+html body .product-item p,
+html body .selected-card p,
+html body .hint{
+  color:#6b7280!important;
+}
+
+html body .logo-dot{
+  background:#f3f4f6!important;
+  background-image:none!important;
+  border:1px solid #e5e7eb!important;
+  box-shadow:none!important;
+}
+
+html body .nav{
+  background:#ffffff!important;
+  background-image:none!important;
+  color:#4b5563!important;
+  border:1px solid #e5e7eb!important;
+  border-radius:999px!important;
+  box-shadow:none!important;
+}
+
+html body .nav.active,
+html body .nav:hover{
+  background:#eef7dc!important;
+  background-image:none!important;
+  color:#111827!important;
+  border-color:#c8e899!important;
+}
+
+html body .app,
+html body .view,
+html body .view.grid-two,
+html body .content,
+html body .main{
+  background:#f5f6f7!important;
+}
+
+html body .panel,
+html body .selected-card,
+html body .product-item,
+html body .manage-item,
+html body .printer-card{
+  background:#ffffff!important;
+  background-image:none!important;
+  border:1px solid #e5e7eb!important;
+  border-radius:18px!important;
+  box-shadow:0 12px 30px rgba(17,24,39,.06)!important;
+  color:#111827!important;
+}
+
+html body .panel-head span,
+html body .status{
+  background:#ffffff!important;
+  background-image:none!important;
+  color:#111827!important;
+  border:1px solid #e5e7eb!important;
+  box-shadow:0 8px 20px rgba(17,24,39,.04)!important;
+}
+
+html body .status span{
+  background:#8fcf1f!important;
+}
+
+/* إخفاء الشرح التقني في قسم الطباعة */
+html body .hint,
+html body .printer-card{
+  display:none!important;
+}
+
+/* حقول */
+html body input,
+html body textarea,
+html body select,
+html body .field{
+  background:#ffffff!important;
+  color:#111827!important;
+  border:1px solid #d1d5db!important;
+  border-radius:12px!important;
+  box-shadow:none!important;
+  font-family:'Noto Kufi Arabic',Cairo,Arial,Tahoma,sans-serif!important;
+}
+
+html body #pDesc,
+html body textarea.field{
+  min-height:120px!important;
+  line-height:1.75!important;
+  resize:vertical!important;
+  white-space:pre-wrap!important;
+}
+
+/* قيم غذائية */
+html body .nutrition-row div{
+  background:#f9fafb!important;
+  background-image:none!important;
+  color:#111827!important;
+  border:1px solid #e5e7eb!important;
+}
+
+html body .nutrition-row small{
+  color:#6b7280!important;
+}
+
+/* أزرار */
+html body .primary,
+html body #printBtn,
+html body button.primary{
+  background:#8fcf1f!important;
+  background-image:none!important;
+  color:#111827!important;
+  border:1px solid #8fcf1f!important;
+  box-shadow:none!important;
+}
+
+html body .ghost,
+html body .mini,
+html body button:not(.primary):not(#printBtn){
+  background:#ffffff!important;
+  background-image:none!important;
+  color:#111827!important;
+  border:1px solid #d1d5db!important;
+  box-shadow:none!important;
+}
+
+html body .chips span{
+  background:#f3f4f6!important;
+  color:#374151!important;
+  border:1px solid #e5e7eb!important;
+}
+
+html body #showPricePrintWrap{
+  background:#ffffff!important;
+  border:1px solid #e5e7eb!important;
+  border-radius:12px!important;
+  padding:10px 12px!important;
+  color:#111827!important;
+  width:max-content;
+  max-width:100%;
+}
+
+/* منع الأخضر القديم نهائياً */
+html body .sidebar *{
+  text-shadow:none!important;
+}
+
+@media(max-width:900px){
+  html body .sidebar{
+    background:#ffffff!important;
+    border-left:0!important;
+    border-bottom:1px solid #e5e7eb!important;
+  }
+}
+
